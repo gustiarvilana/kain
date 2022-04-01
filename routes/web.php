@@ -53,6 +53,5 @@ Route::get('/supplier/data',[SupplierController::class,'data']);
 Route::resource('supplier', SupplierController::class);
 
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
 Auth::routes();
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
