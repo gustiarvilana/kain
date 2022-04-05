@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -31,8 +32,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::all();
-        return view('user.index', compact('users'));
+        return view('user.index');
     }
 
     /**
@@ -66,7 +66,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::where('nik',$id)->first();
+        return response()->json($user);
     }
 
     /**
@@ -77,7 +78,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+
     }
 
     /**
@@ -89,7 +90,15 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $data =$request->except('_token','_method');
+        $user = User::where('nik',$id);
+
+        $data['password'] = Hash::make($request->input('password'));
+
+        $user->update($data);
+
+        return response()->json('Data Berhasil Update',200);
     }
 
     /**

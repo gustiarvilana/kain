@@ -13,7 +13,18 @@ class JenisController extends Controller
      */
     public function data()
     {
-        return 'jenis.data';
+        $user = User::all();
+
+        return datatables()::of($user)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($user){
+                return '
+                    <button onclick="editform(`'. route('user.update',$user->nik) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('user.destroy',$user->nik) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     public function index()
@@ -39,7 +50,9 @@ class JenisController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         User::create($request->all());
+
+        return redirect()->back()->with('success', 'Berhasil menambahkan user');
     }
 
     /**
@@ -84,6 +97,9 @@ class JenisController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::where('nik',$id);
+        $user->delete();
+
+        return response(null,204);
     }
 }
