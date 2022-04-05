@@ -21,9 +21,9 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="jenis" class="col-md-2 col-md-offset-1 control-label">Jenis</label>
+                        <label for="kd_jenis" class="col-md-2 col-md-offset-1 control-label">Kode Jenis</label>
                         <div class="col-md-6">
-                            <input type="text" name="jenis" id="jenis" class="form-control" required>
+                            <input type="text" name="kd_jenis" id="kd_jenis" class="form-control" required>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>

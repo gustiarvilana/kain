@@ -60,7 +60,7 @@ Data master
             columns: [
                 {data: 'DT_RowIndex',searcable: false,sortable: false},
                 {data: 'kd_produk'},
-                {data: 'jenis'},
+                {data: 'kd_jenis'},
                 {data: 'warna'},
                 {data: 'berat_kg'},
                 {data: 'harga_kg'},

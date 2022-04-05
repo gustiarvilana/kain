@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddProdukToMaster extends Migration
+class AddTableSupplier extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class AddProdukToMaster extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_master', function (Blueprint $table) {
-            $table->string('jenis')->change();
-            $table->string('kd_produk')->after('jenis');
+        Schema::create('tbl_supplier', function (Blueprint $table) {
+            $table->string('kd_supplier')->primary();
+            $table->string('nama');
+            $table->text('alamat');
+            $table->string('telepon');
+            $table->timestamps();
         });
     }
 
@@ -26,8 +29,6 @@ class AddProdukToMaster extends Migration
      */
     public function down()
     {
-        Schema::table('table_master', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('tbl_supplier');
     }
 }

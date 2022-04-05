@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
@@ -13,7 +14,18 @@ class SupplierController extends Controller
      */
     public function data()
     {
-        return 'supplier.data';
+        $supplier = Supplier::all();
+
+        return datatables()::of($supplier)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($supplier){
+                return '
+                    <button onclick="editform(`'. route('supplier.update',$supplier->kd_supplier) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('supplier.destroy',$supplier->kd_supplier) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     public function index()
@@ -39,7 +51,9 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Supplier::create($request->all());
+
+        return redirect()->back()->with('success', 'Berhasil menambahkan supplier');
     }
 
     /**
@@ -50,7 +64,8 @@ class SupplierController extends Controller
      */
     public function show($id)
     {
-        //
+        $supplier = Supplier::where('kd_supplier',$id)->first();
+        return response()->json($supplier);
     }
 
     /**
@@ -73,7 +88,13 @@ class SupplierController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $data =$request->except('_token','_method');
+        $user = Supplier::where('kd_supplier',$id);
+
+        $user->update($data);
+
+        return response()->json('Data Berhasil Update',200);
     }
 
     /**
@@ -84,6 +105,9 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $supplier = Supplier::where('kd_supplier',$id);
+        $supplier->delete();
+
+        return response(null,204);
     }
 }
