@@ -14,16 +14,16 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <label for="kd_jenis" class="col-md-2 col-md-offset-1 control-label">Kode Jenis</label>
+                        <label for="kd_produk" class="col-md-2 col-md-offset-1 control-label">Kode Produk</label>
                         <div class="col-md-6">
-                            <input type="text" name="kd_jenis" id="kd_jenis" class="form-control" required>
+                            <input type="text" name="kd_produk" id="kd_produk" class="form-control" required>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="nama_jenis" class="col-md-2 col-md-offset-1 control-label">Nama</label>
+                        <label for="nama_produk" class="col-md-2 col-md-offset-1 control-label">Nama Produk</label>
                         <div class="col-md-6">
-                            <input type="text" nama_jenis="nama_jenis" id="nama_jenis" class="form-control" required>
+                            <input type="text" name="nama_produk" id="nama_produk" class="form-control" required>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>

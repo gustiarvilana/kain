@@ -64,7 +64,7 @@ class JenisController extends Controller
      */
     public function show($id)
     {
-         $jenis = Jenis::where('kd_jenis',$id)->first();
+        $jenis = Jenis::where('kd_jenis',$id)->first();
         return response()->json($jenis);
     }
 
@@ -95,7 +95,6 @@ class JenisController extends Controller
         $user->update($data);
 
         return response()->json('Data Berhasil Update',200);
-
     }
 
     /**
