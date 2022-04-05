@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Jenis;
 use Illuminate\Http\Request;
 
 class JenisController extends Controller
@@ -13,14 +14,14 @@ class JenisController extends Controller
      */
     public function data()
     {
-        $user = User::all();
+        $jenis = Jenis::all();
 
-        return datatables()::of($user)
+        return datatables()::of($jenis)
             ->addIndexColumn()
-            ->addColumn('aksi', function($user){
+            ->addColumn('aksi', function($jenis){
                 return '
-                    <button onclick="editform(`'. route('user.update',$user->nik) .'`)" class="btn btn-info btn-xs">Edit</button>
-                    <button onclick="deleteform(`'. route('user.destroy',$user->nik) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                    <button onclick="editform(`'. route('jenis.update',$jenis->kd_jenis) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('jenis.destroy',$jenis->kd_jenis) .'`)" class="btn btn-danger btn-xs">Hapus</button>
                 ';
             })
             ->rawColumns(['aksi'])
@@ -50,9 +51,9 @@ class JenisController extends Controller
      */
     public function store(Request $request)
     {
-         User::create($request->all());
+        Jenis::create($request->all());
 
-        return redirect()->back()->with('success', 'Berhasil menambahkan user');
+        return redirect()->back()->with('success', 'Berhasil menambahkan jenis');
     }
 
     /**
@@ -63,7 +64,8 @@ class JenisController extends Controller
      */
     public function show($id)
     {
-        //
+         $jenis = Jenis::where('kd_jenis',$id)->first();
+        return response()->json($jenis);
     }
 
     /**
@@ -86,7 +88,14 @@ class JenisController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $data =$request->except('_token','_method');
+        $user = Jenis::where('kd_jenis',$id);
+
+        $user->update($data);
+
+        return response()->json('Data Berhasil Update',200);
+
     }
 
     /**
@@ -97,8 +106,8 @@ class JenisController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::where('nik',$id);
-        $user->delete();
+        $jenis = Jenis::where('kd_jenis',$id);
+        $jenis->delete();
 
         return response(null,204);
     }

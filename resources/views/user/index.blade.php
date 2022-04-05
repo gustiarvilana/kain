@@ -68,11 +68,6 @@ Data User
 
         });
 
-        // menu active
-        $("#user").addClass("active");
-        $("#liUser").addClass("menu-open");
-        $(".tableUser").addClass("active");
-
         $('#modal-form').validator().on('submit', function (e) {
             if (!e.preventDefault()) {
                 $.ajax({
