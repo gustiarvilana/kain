@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Master;
 use Illuminate\Http\Request;
 
 class MasterController extends Controller
@@ -13,7 +14,18 @@ class MasterController extends Controller
      */
     public function data()
     {
-        return 'Master.data';
+        $master = Master::all();
+
+        return datatables()::of($master)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($master){
+                return '
+                    <button onclick="editform(`'. route('master.update',$master->kd_produk) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('master.destroy',$master->kd_produk) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     public function index()
@@ -39,7 +51,9 @@ class MasterController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Master::create($request->all());
+
+        return redirect()->back()->with('success', 'Berhasil menambahkan master');
     }
 
     /**
@@ -50,7 +64,8 @@ class MasterController extends Controller
      */
     public function show($id)
     {
-        //
+        $master = Master::where('kd_produk',$id)->first();
+        return response()->json($master);
     }
 
     /**
@@ -73,7 +88,13 @@ class MasterController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $data =$request->except('_token','_method');
+        $user = Master::where('kd_produk',$id);
+
+        $user->update($data);
+
+        return response()->json('Data Berhasil Update',200);
     }
 
     /**
@@ -84,6 +105,9 @@ class MasterController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $master = Master::where('kd_produk',$id);
+        $master->delete();
+
+        return response(null,204);
     }
 }
