@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Supplier;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
-class SupplierController extends Controller
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,14 +16,14 @@ class SupplierController extends Controller
      */
     public function data()
     {
-        $supplier = Supplier::all();
+        $user = User::all();
 
-        return datatables()::of($supplier)
+        return datatables()::of($user)
             ->addIndexColumn()
-            ->addColumn('aksi', function($supplier){
+            ->addColumn('aksi', function($user){
                 return '
-                    <button onclick="editform(`'. route('supplier.update',$supplier->kd_supplier) .'`)" class="btn btn-info btn-xs">Edit</button>
-                    <button onclick="deleteform(`'. route('supplier.destroy',$supplier->kd_supplier) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                    <button onclick="editform(`'. route('user.update',$user->nik) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('user.destroy',$user->nik) .'`)" class="btn btn-danger btn-xs">Hapus</button>
                 ';
             })
             ->rawColumns(['aksi'])
@@ -30,7 +32,7 @@ class SupplierController extends Controller
 
     public function index()
     {
-        return view('supplier.index');
+        return view('user.index');
     }
 
     /**
@@ -51,9 +53,9 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        Supplier::create($request->all());
+        User::create($request->all());
 
-        return redirect()->back()->with('success', 'Berhasil menambahkan supplier');
+        return redirect()->back()->with('success', 'Berhasil menambahkan user');
     }
 
     /**
@@ -64,8 +66,8 @@ class SupplierController extends Controller
      */
     public function show($id)
     {
-        $supplier = Supplier::where('kd_supplier',$id)->first();
-        return response()->json($supplier);
+        $user = User::where('nik',$id)->first();
+        return response()->json($user);
     }
 
     /**
@@ -76,7 +78,7 @@ class SupplierController extends Controller
      */
     public function edit($id)
     {
-        //
+
     }
 
     /**
@@ -90,7 +92,9 @@ class SupplierController extends Controller
     {
         $data = $request->all();
         $data =$request->except('_token','_method');
-        $user = Supplier::where('kd_supplier',$id);
+        $user = User::where('nik',$id);
+
+        $data['password'] = Hash::make($request->input('password'));
 
         $user->update($data);
 
@@ -105,8 +109,8 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
-        $supplier = Supplier::where('kd_supplier',$id);
-        $supplier->delete();
+        $user = User::where('nik',$id);
+        $user->delete();
 
         return response(null,204);
     }

@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-Data Jenis
+Data User
 @endsection
 
 @section('content')
@@ -11,7 +11,8 @@ Data Jenis
 <div class="card">
     <div class="card-header">
         <div class="group-inline">
-            <div class="btn btn-success btn-xs mr-2" onclick="addform('{{ route('jenis.store') }}')"><i class="fa fa-plus" aria-hidden="true"></i> Tambah Jenis</div>
+            <div class="btn btn-success btn-xs mr-2" onclick="addform('{{ route('user.store') }}')"><i class="fa fa-plus" aria-hidden="true"></i> Tambah User</div>
+            <div class="btn btn-warning btn-xs mr-2"><i class="fa fa-plus" aria-hidden="true"></i> Upload .xlsx</div>
         </div>
     </div>
     <div class="card-body ">
@@ -21,8 +22,11 @@ Data Jenis
                     <thead class="thead-inverse">
                         <tr>
                             <th>No</th>
-                            <th>Kode</th>
+                            <th>nik</th>
+                            <th>Username</th>
                             <th>Nama</th>
+                            <th>Email</th>
+                            <th>Role</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -34,7 +38,7 @@ Data Jenis
     <div class="card-footer"></div>
 </div>
 
-@include('jenis.form')
+@include('user.form')
 @endsection
 
 @push('script')
@@ -47,15 +51,18 @@ Data Jenis
             searching:true,
             autoWidth: false,
             ajax: {
-                url: '{{ route('jenis.data') }}',
+                url: '{{ route('user.data') }}',
                 // data: function(d){
                 //     d.name = name;
                 // }
             },
             columns: [
                 {data: 'DT_RowIndex',searcable: false,sortable: false},
-                {data: 'kd_jenis'},
-                {data: 'nama_jenis'},
+                {data: 'nik'},
+                {data: 'username'},
+                {data: 'name'},
+                {data: 'email'},
+                {data: 'role'},
                 {data: 'aksi'},
             ],
 
@@ -99,8 +106,12 @@ Data Jenis
 
         $.get(url)
             .done((response) => {
-                $('#modal-form [name=kd_jenis]').val(response.kd_jenis);
-                $('#modal-form [name=nama_jenis]').val(response.nama_jenis);
+                $('#modal-form [name=nik]').val(response.nik);
+                $('#modal-form [name=name]').val(response.name);
+                $('#modal-form [name=username]').val(response.username);
+                $('#modal-form [name=email]').val(response.email);
+                $('#modal-form [name=level]').val(response.level);
+                $('#modal-form [name=password]').val(response.password);
             })
             .fail((errors) => {
                 alert('Tidak Dapat menampilkan data');
@@ -123,5 +134,11 @@ Data Jenis
                 });
         }
     }
+
+    $(".filter").on('change',function () {
+        name = $("#filter_name").val()
+
+        $('#table').DataTable().ajax.reload(null,false)
+    });
 </script>
 @endpush

@@ -15,7 +15,7 @@ class CreateTblPenjualan extends Migration
     {
         Schema::create('tbl_penjualan', function (Blueprint $table) {
             $table->bigInteger('id_penjualan')->primary();
-            $table->bigInteger('kd_produk');
+            $table->string('kd_produk');
             $table->string('warna');
             $table->integer('berat');
             $table->double('jumlah');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Sortir;
 use Illuminate\Http\Request;
 
 class SortirController extends Controller
@@ -13,7 +14,18 @@ class SortirController extends Controller
      */
     public function data()
     {
-        return 'ini sortir.data';
+        $sortir = Sortir::all();
+
+        return datatables()::of($sortir)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($sortir){
+                return '
+                    <button onclick="editform(`'. route('sortir.update',$sortir->id_sortir) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('sortir.destroy',$sortir->id_sortir) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     public function index()
@@ -39,7 +51,9 @@ class SortirController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Sortir::create($request->all());
+
+        return redirect()->back()->with('success', 'Berhasil menambahkan sortir');
     }
 
     /**
@@ -50,7 +64,8 @@ class SortirController extends Controller
      */
     public function show($id)
     {
-        //
+        $sortir = Sortir::where('id_sortir',$id)->first();
+        return response()->json($sortir);
     }
 
     /**
@@ -73,7 +88,13 @@ class SortirController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $data =$request->except('_token','_method');
+        $user = Sortir::where('id_sortir',$id);
+
+        $user->update($data);
+
+        return response()->json('Data Berhasil Update',200);
     }
 
     /**
@@ -84,6 +105,9 @@ class SortirController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $sortir = Sortir::where('id_sortir',$id);
+        $sortir->delete();
+
+        return response(null,204);
     }
 }

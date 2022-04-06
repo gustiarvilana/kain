@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Produk;
+use Database\Seeders\ProdukSeeder;
 use Illuminate\Http\Request;
 
 class ProdukController extends Controller
@@ -13,7 +15,18 @@ class ProdukController extends Controller
      */
     public function data()
     {
-        return 'produk.data';
+         $produk = Produk::all();
+
+        return datatables()::of($produk)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($produk){
+                return '
+                    <button onclick="editform(`'. route('produk.update',$produk->kd_produk) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('produk.destroy',$produk->kd_produk) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     public function index()
@@ -39,7 +52,9 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Produk::create($request->all());
+
+        return redirect()->back()->with('success', 'Berhasil menambahkan jenis');
     }
 
     /**
@@ -50,7 +65,8 @@ class ProdukController extends Controller
      */
     public function show($id)
     {
-        //
+        $produk = Produk::where('kd_produk',$id)->first();
+        return response()->json($produk);
     }
 
     /**
@@ -73,7 +89,13 @@ class ProdukController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $data =$request->except('_token','_method');
+        $user = Produk::where('kd_produk',$id);
+
+        $user->update($data);
+
+        return response()->json('Data Berhasil Update',200);
     }
 
     /**
@@ -84,6 +106,9 @@ class ProdukController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $produk = Produk::where('kd_produk',$id);
+        $produk->delete();
+
+        return response(null,204);
     }
 }
