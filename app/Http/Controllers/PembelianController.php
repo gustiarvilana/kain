@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pembelian;
 use Illuminate\Http\Request;
 
 class PembelianController extends Controller
@@ -13,7 +14,18 @@ class PembelianController extends Controller
      */
     public function data()
     {
-        return 'ini pembelian.data';
+        $pembelian = Pembelian::all();
+
+        return datatables()::of($pembelian)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($pembelian){
+                return '
+                    <button onclick="editform(`'. route('pembelian.update',$pembelian->id_produk) .'`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`'. route('pembelian.destroy',$pembelian->id_produk) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     public function index()
@@ -39,7 +51,9 @@ class PembelianController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Pembelian::create($request->all());
+
+        return redirect()->back()->with('success', 'Berhasil menambahkan pembelian');
     }
 
     /**
@@ -50,7 +64,8 @@ class PembelianController extends Controller
      */
     public function show($id)
     {
-        //
+        $pembelian = Pembelian::where('id_produk',$id)->first();
+        return response()->json($pembelian);
     }
 
     /**
@@ -73,7 +88,13 @@ class PembelianController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        $data =$request->except('_token','_method');
+        $user = Pembelian::where('id_produk',$id);
+
+        $user->update($data);
+
+        return response()->json('Data Berhasil Update',200);
     }
 
     /**
@@ -84,6 +105,9 @@ class PembelianController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $pembelian = Pembelian::where('id_produk',$id);
+        $pembelian->delete();
+
+        return response(null,204);
     }
 }

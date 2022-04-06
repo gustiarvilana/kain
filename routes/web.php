@@ -24,6 +24,10 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 |
 */
 
+Route::get('/', function () {
+    return redirect()->route('home');
+});
+
 Route::get('/welcome', function () {
     return view('welcome');
 });
