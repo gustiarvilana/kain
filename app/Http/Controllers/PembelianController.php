@@ -2,8 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Giling;
+use App\Models\Jenis;
+use App\Models\Master;
 use App\Models\Pembelian;
+use App\Models\PembelianDetail;
+use App\Models\Produk;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PembelianController extends Controller
 {
@@ -14,14 +21,14 @@ class PembelianController extends Controller
      */
     public function data()
     {
-        $pembelian = Pembelian::all();
+        $pembelian = DB::table('tbl_pembelian as a');
 
         return datatables()::of($pembelian)
             ->addIndexColumn()
-            ->addColumn('aksi', function($pembelian){
+            ->addColumn('aksi', function ($pembelian) {
                 return '
-                    <button onclick="editform(`'. route('pembelian.update',$pembelian->id_produk) .'`)" class="btn btn-info btn-xs">Edit</button>
-                    <button onclick="deleteform(`'. route('pembelian.destroy',$pembelian->id_produk) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                    <button onclick="editform(`' . route('pembelian.update', $pembelian->id_pembelian) . '`)" class="btn btn-info btn-xs">Edit</button>
+                    <button onclick="deleteform(`' . route('pembelian.destroy', $pembelian->id_pembelian) . '`)" class="btn btn-danger btn-xs">Hapus</button>
                 ';
             })
             ->rawColumns(['aksi'])
@@ -30,7 +37,14 @@ class PembelianController extends Controller
 
     public function index()
     {
-        return view('pembelian.index');
+        // hapus kosong
+        session()->forget('kd_pembelian');
+        DB::table('tbl_pembelian')->where('kd_supplier', '0')->where('tgl_trs', '0')->delete();
+
+        $produks = Produk::all();
+        $jeniss = Jenis::all();
+        $suppliers = Supplier::all();
+        return view('pembelian.index', compact('produks', 'jeniss', 'suppliers'));
     }
 
     /**
@@ -40,7 +54,38 @@ class PembelianController extends Controller
      */
     public function create()
     {
-        //
+        Pembelian::where('kd_supplier', '0')->where('tgl_trs', '0')->delete();
+        PembelianDetail::where('kd_produk', '0')->where('total_harga', '0')->delete();
+
+        $pembelian = Pembelian::latest('id_pembelian')->first();
+        if ($pembelian == null) {
+            $pembelian = 0;
+        }
+        $kd_pembelian = kode('PK', $pembelian);
+
+        DB::table('tbl_pembelian')->insert([
+            'kd_pembelian' => $kd_pembelian,
+            'kd_supplier' => '0',
+            'tgl_trs' => '0',
+            'jumlah' => '0',
+            'total_harga' => '0',
+        ]);
+
+        DB::table('tbl_pembelian_detail')->insert([
+            'kd_pembelian' => $kd_pembelian,
+            'kd_produk' => '0',
+            'warna' => '0',
+            'harga_satuan' => '0',
+            'berat' => '0',
+            'sts' => '0',
+            'total_harga' => '0',
+        ]);
+        session(['kd_pembelian' => $kd_pembelian]);
+        $session = session('kd_pembelian');
+
+        $produk = Master::all();
+
+        return view('pembelian_detail.index', compact('session', 'produk'));
     }
 
     /**
@@ -51,9 +96,7 @@ class PembelianController extends Controller
      */
     public function store(Request $request)
     {
-        Pembelian::create($request->all());
-
-        return redirect()->back()->with('success', 'Berhasil menambahkan pembelian');
+        //
     }
 
     /**
@@ -64,7 +107,7 @@ class PembelianController extends Controller
      */
     public function show($id)
     {
-        $pembelian = Pembelian::where('id_produk',$id)->first();
+        $pembelian = Pembelian::where('id_pembelian', $id)->first();
         return response()->json($pembelian);
     }
 
@@ -89,12 +132,12 @@ class PembelianController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        $data =$request->except('_token','_method');
-        $user = Pembelian::where('id_produk',$id);
+        $data = $request->except('_token', '_method');
+        $user = Pembelian::where('id_pembelian', $id);
 
         $user->update($data);
 
-        return response()->json('Data Berhasil Update',200);
+        return response()->json('Data Berhasil Update', 200);
     }
 
     /**
@@ -105,9 +148,10 @@ class PembelianController extends Controller
      */
     public function destroy($id)
     {
-        $pembelian = Pembelian::where('id_produk',$id);
+        $pembelian = Pembelian::where('id_pembelian', $id);
         $pembelian->delete();
 
-        return response(null,204);
+
+        return response(null, 204);
     }
 }

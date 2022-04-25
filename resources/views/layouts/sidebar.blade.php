@@ -46,18 +46,6 @@
                 </a>
                 <ul class="nav nav-treeview ml-4 mr-4">
                     <li class="nav-item">
-                        <a href="{{ route('jenis.index') }}" class="nav-link {{ Request::routeIs('jenis.*') ? 'active' : '' }}">
-                            <i class="fa fa-cube mr-2" aria-hidden="true"></i>
-                            <p>Tabel Jenis</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('produk.index') }}" class="nav-link {{ Request::routeIs('produk.*') ? 'active' : '' }}">
-                            <i class="fa fa-cubes mr-2" aria-hidden="true"></i>
-                            <p>Tabel produk</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="{{ route('master.index') }}" class="nav-link {{ Request::routeIs('master.*') ? 'active' : '' }}">
                             <i class="mr-2 fa fa-book" aria-hidden="true"></i>
                             <p>Data Master</p>

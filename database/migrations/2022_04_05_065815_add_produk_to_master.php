@@ -16,6 +16,7 @@ class AddProdukToMaster extends Migration
         Schema::table('tbl_master', function (Blueprint $table) {
             $table->string('jenis')->change();
             $table->string('kd_produk')->after('jenis');
+            $table->string('kd_jenis')->after('kd_produk');
         });
     }
 

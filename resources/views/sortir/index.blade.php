@@ -19,9 +19,9 @@ Data Sortir
                     <thead class="thead-inverse">
                         <tr>
                             <th>No</th>
-                            <th>ID Sortir</th>
-                            <th>ID Jenis</th>
-                            <th>ID Supplier</th>
+                            <th>Kode Produk</th>
+                            <th>Kode Jenis</th>
+                            <th>Kode Supplier</th>
                             <th>Warna</th>
                             <th>berat</th>
                             <th>Jumlah</th>
@@ -58,9 +58,9 @@ Data Sortir
             },
             columns: [
                 {data: 'DT_RowIndex',searcable: false,sortable: false},
-                {data: 'id_sortir'},
-                {data: 'id_jenis'},
-                {data: 'id_supplier'},
+                {data: 'kd_produk'},
+                {data: 'kd_jenis'},
+                {data: 'kd_supplier'},
                 {data: 'warna'},
                 {data: 'berat'},
                 {data: 'jumlah'},

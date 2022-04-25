@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Master;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MasterController extends Controller
 {
@@ -18,10 +19,10 @@ class MasterController extends Controller
 
         return datatables()::of($master)
             ->addIndexColumn()
-            ->addColumn('aksi', function($master){
+            ->addColumn('aksi', function ($master) {
                 return '
-                    <button onclick="editform(`'. route('master.update',$master->kd_produk) .'`)" class="btn btn-info btn-xs">Edit</button>
-                    <button onclick="deleteform(`'. route('master.destroy',$master->kd_produk) .'`)" class="btn btn-danger btn-xs">Hapus</button>
+                    <button onclick="editform(`' . route('master.update', $master->kd_produk) . '`)" class="btn btn-warning btn-xs">Edit</button>
+                    <button onclick="deleteform(`' . route('master.destroy', $master->kd_produk) . '`)" class="btn btn-danger btn-xs">Hapus</button>
                 ';
             })
             ->rawColumns(['aksi'])
@@ -51,7 +52,38 @@ class MasterController extends Controller
      */
     public function store(Request $request)
     {
-        Master::create($request->all());
+        $i_kd_produk    = $request->input('kd_produk');
+        $i_nama_produk  = $request->input('nama_produk');
+        $i_jenis        = $request->input('jenis');
+        $i_warna        = $request->input('warna');
+        $i_harga_kg     = $request->input('harga_kg');
+        $i_stok_global  = '0';
+        $i_stok_sortir  = '0';
+        $i_stok_giling  = '0';
+        $i_penyusutan   = '0';
+        $i_harga_beli   = '0';
+        $i_hpp          = '0';
+
+
+        $id = DB::table('tbl_master')->max('id');
+        if ($id == null) {
+            $id = 0;
+        }
+        $kode_produk = kode('P-', $id);
+
+        Master::create([
+            'kd_produk'     => $kode_produk,
+            'nama_produk'   => $i_nama_produk,
+            'jenis'         => $i_jenis,
+            'warna'         => $i_warna,
+            'harga_kg'      => $i_harga_kg,
+            'stok_global'   => $i_stok_global,
+            'stok_sortir'   => $i_stok_sortir,
+            'stok_giling'   => $i_stok_giling,
+            'penyusutan'    => $i_penyusutan,
+            'harga_beli'    => $i_harga_beli,
+            'hpp'           => $i_hpp,
+        ]);
 
         return redirect()->back()->with('success', 'Berhasil menambahkan master');
     }
@@ -64,7 +96,7 @@ class MasterController extends Controller
      */
     public function show($id)
     {
-        $master = Master::where('kd_produk',$id)->first();
+        $master = Master::where('kd_produk', $id)->first();
         return response()->json($master);
     }
 
@@ -89,12 +121,12 @@ class MasterController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        $data =$request->except('_token','_method');
-        $user = Master::where('kd_produk',$id);
+        $data = $request->except('_token', '_method');
+        $user = Master::where('kd_produk', $id);
 
         $user->update($data);
 
-        return response()->json('Data Berhasil Update',200);
+        return response()->json('Data Berhasil Update', 200);
     }
 
     /**
@@ -105,9 +137,9 @@ class MasterController extends Controller
      */
     public function destroy($id)
     {
-        $master = Master::where('kd_produk',$id);
+        $master = Master::where('kd_produk', $id);
         $master->delete();
 
-        return response(null,204);
+        return response(null, 204);
     }
 }

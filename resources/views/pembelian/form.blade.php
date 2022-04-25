@@ -14,44 +14,53 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <label for="id_produk" class="col-md-2 col-md-offset-1 control-label">Kode Produk</label>
+                        <label for="kd_produk" class="col-md-2 col-md-offset-1 control-label">Kode Produk</label>
                         <div class="col-md-6">
-                            <input type="text" name="id_produk" id="id_produk" class="form-control" required>
+                            <select name="kd_produk" id="kd_produk" class="form-control">
+                                <option value=""></option>
+                                @foreach ($produks as $produk)
+                                <option value="{{ $produk->kd_produk }}">{{ $produk->kd_produk }} / {{ $produk->nama_produk }}</option>
+                                @endforeach
+                            </select>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="tgl_trs" class="col-md-2 col-md-offset-1 control-label">Tgl Transaksi</label>
+                        <label for="kd_supplier" class="col-md-2 col-md-offset-1 control-label">Kode Supplier</label>
                         <div class="col-md-6">
-                            <input type="text" name="tgl_trs" id="tgl_trs" class="form-control" required>
+                            <select name="kd_supplier" id="kd_supplier" class="form-control">
+                                <option value=""></option>
+                                @foreach ($suppliers as $supplier)
+                                <option value="{{ $supplier->kd_supplier }}">{{ $supplier->kd_supplier }} / {{ $supplier->nama }}</option>
+                                @endforeach
+                            </select>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="jumlah" class="col-md-2 col-md-offset-1 control-label">Jumlah</label>
+                        <label for="warna" class="col-md-2 col-md-offset-1 control-label">Warna</label>
                         <div class="col-md-6">
-                            <input type="text" name="jumlah" id="jumlah" class="form-control" required>
+                            <select name="warna" id="warna" class="form-control">
+                                <option value=""></option>
+                                <option value="bening">Bening</option>
+                                <option value="putih">Merah</option>
+                                <option value="hitam">Hitam</option>
+                                <option value="kuning">kuning</option>
+                            </select>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="sts" class="col-md-2 col-md-offset-1 control-label">Status</label>
+                        <label for="berat" class="col-md-2 col-md-offset-1 control-label">Berat</label>
                         <div class="col-md-6">
-                            <input type="text" name="sts" id="sts" class="form-control" required>
+                            <input type="text" name="berat" id="berat" class="form-control" required>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="harga_satuan" class="col-md-2 col-md-offset-1 control-label">Harga Satuan</label>
+                        <label for="tgl_sortir" class="col-md-2 col-md-offset-1 control-label">Tgl_sortir</label>
                         <div class="col-md-6">
-                            <input type="text" name="harga_satuan" id="harga_satuan" class="form-control" required>
-                            <span class="help-block with-errors"></span>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="total_harga" class="col-md-2 col-md-offset-1 control-label">Total Harga</label>
-                        <div class="col-md-6">
-                            <input type="text" name="total_harga" id="total_harga" class="form-control" required>
+                            <input type="date" name="tgl_sortir" id="tgl_sortir" class="form-control" required>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>

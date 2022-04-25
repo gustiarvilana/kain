@@ -10,7 +10,10 @@ Data pembelian
 @endif
 <div class="card">
     <div class="card-header">
-        <div class="btn btn-success btn-lg mr-2" onclick="addform('{{ route('pembelian.store') }}')"><i class="fa fa-plus-circle" aria-hidden="true"></i> Input Pembelian </div>
+        {{--  <div class="btn btn-success btn-lg mr-2" onclick="addform('{{ route('pembelian.store') }}')"><i class="fa fa-plus-circle" aria-hidden="true"></i> Input Pembelian </div>  --}}
+        <form action="{{ route('pembelian.create') }}" method="get">
+            <button type="submit" class="btn btn-success btn-lg mr-2"><i class="fa fa-plus-circle" aria-hidden="true"></i> Input Transaksi</button>
+        </form>
     </div>
     <div class="card-body ">
         <div class="row table-responsive">
@@ -19,11 +22,10 @@ Data pembelian
                     <thead class="thead-inverse">
                         <tr>
                             <th>No</th>
-                            <th>Nama Produk</th>
-                            <th>Tgl TRansaksi</th>
-                            <th>jumlah</th>
-                            <th>Status</th>
-                            <th>Harga Satuan</th>
+                            <th>Tgl Pembelian</th>
+                            <th>No Nota</th>
+                            <th>Supplier</th>
+                            <th>Total Berat</th>
                             <th>Total Harga</th>
                             <th width="15%">Action</th>
                         </tr>
@@ -35,7 +37,6 @@ Data pembelian
     </div>
     <div class="card-footer"></div>
 </div>
-
 @include('pembelian.form')
 @endsection
 
@@ -57,11 +58,10 @@ Data pembelian
             },
             columns: [
                 {data: 'DT_RowIndex',searcable: false,sortable: false},
-                {data: 'id_produk'},
                 {data: 'tgl_trs'},
+                {data: 'kd_pembelian'},
+                {data: 'kd_supplier'},
                 {data: 'jumlah'},
-                {data: 'sts'},
-                {data: 'harga_satuan'},
                 {data: 'total_harga'},
                 {data: 'aksi'},
             ],
@@ -89,7 +89,7 @@ Data pembelian
 
     function addform(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Tambah User');
+        $('#modal-form .modal-title').text('Tambah Pembelian');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);

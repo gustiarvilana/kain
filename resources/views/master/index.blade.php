@@ -9,9 +9,9 @@ Data master
    <div class="alert alert-success">{{ Session::get('success') }}</div>
 @endif
 <div class="card">
-    {{-- <div class="card-header"> --}}
-        {{--  --}}
-    {{-- </div> --}}
+    <div class="card-header">
+        <div class="btn btn-success btn-lg mr-2" onclick="addform('{{ route('master.store') }}')"><i class="fa fa-plus-circle" aria-hidden="true"></i> Tambah Produk </div>
+    </div>
     <div class="card-body ">
         <div class="row table-responsive">
             <div class="col">
@@ -19,13 +19,15 @@ Data master
                     <thead class="thead-inverse">
                         <tr>
                             <th>No</th>
+                            <th>Kode Produk</th>
                             <th>Nama Produk</th>
-                            <th>Nama Jenis</th>
+                            <th>Jenis</th>
                             <th>Warna</th>
-                            <th>Berat (kg)</th>
                             <th>harga (/kg)</th>
-                            <th>Jumlah</th>
-                            <th>Status</th>
+                            <th>Stok Global</th>
+                            <th>Stok Sortir</th>
+                            <th>Stok Giling</th>
+                            <th>Penyusutan</th>
                             <th>Harga Beli</th>
                             <th>Harga Jual</th>
                             <th width="15%">Action</th>
@@ -60,12 +62,14 @@ Data master
             columns: [
                 {data: 'DT_RowIndex',searcable: false,sortable: false},
                 {data: 'kd_produk'},
-                {data: 'kd_jenis'},
+                {data: 'nama_produk'},
+                {data: 'jenis'},
                 {data: 'warna'},
-                {data: 'berat_kg'},
                 {data: 'harga_kg'},
-                {data: 'jumlah'},
-                {data: 'sts_produk'},
+                {data: 'stok_global'},
+                {data: 'stok_sortir'},
+                {data: 'stok_giling'},
+                {data: 'penyusutan'},
                 {data: 'harga_beli'},
                 {data: 'hpp'},
                 {data: 'aksi'},
