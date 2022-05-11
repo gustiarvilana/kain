@@ -70,22 +70,9 @@ class PembelianController extends Controller
             'jumlah' => '0',
             'total_harga' => '0',
         ]);
-
-        DB::table('tbl_pembelian_detail')->insert([
-            'kd_pembelian' => $kd_pembelian,
-            'kd_produk' => '0',
-            'warna' => '0',
-            'harga_satuan' => '0',
-            'berat' => '0',
-            'sts' => '0',
-            'total_harga' => '0',
-        ]);
         session(['kd_pembelian' => $kd_pembelian]);
-        $session = session('kd_pembelian');
 
-        $produk = Master::all();
-
-        return view('pembelian_detail.index', compact('session', 'produk'));
+        return redirect()->route('pembelianDetail.create');
     }
 
     /**

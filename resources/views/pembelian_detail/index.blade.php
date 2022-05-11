@@ -44,9 +44,8 @@
 @endpush
 
 @section('title')
-    Page Penjualan Detail
+    Page Pembelian Detail
 @endsection
-
 
 @section('content')
 <div class="row">
@@ -65,9 +64,8 @@
                         <label for="kode_produk" class="col-lg-2">Kode Produk</label>
                         <div class="col-lg-4">
                             <div class="input-group">
-                                <input type="hidden" name="id_penjualan" id="id_penjualan" value="{{ $session }}">
-                                <input type="hidden" name="id_produk" id="id_produk">
-                                <input type="text" class="form-control" name="kd_produk" id="kd_produk">
+                                <input type="hidden" name="kd_pembelian" id="kd_pembelian" value="{{ $session }}">
+                                <input type="text" class="form-control" name="kd_produk" id="kd_produk" value="">
                                 <span class="input-group-btn">
                                     <button onclick="tampilProduk()" class="btn btn-info btn-flat" type="button">Pilih Produk <i class="fa fa-search"></i></button>
                                 </span>
@@ -83,6 +81,7 @@
                         <th>Nama</th>
                         <th>Harga</th>
                         <th width="15%">Jumlah</th>
+                        <th>Status</th>
                         <th>Subtotal</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
@@ -94,24 +93,17 @@
                     <div class="col-lg-12">
                         <form action="#" class="form-penjualan form-horizontal" method="post">
                             @csrf
-
                              <div class="form-group row">
                                 <label for="totalrp" class="col-lg-1 control-label">Total</label>
                                 <div class="col-lg-8">
                                     <input type="text" id="totalrp" class="form-control" readonly>
                                 </div>
                             </div>
-
                             <div class="col-lg-6">
-                                <input type="hidden" name="batch_user" id="batch_user" class="form-control">
-                                <input type="hidden" name="sts_flow" id="sts_flow" class="form-control">
-
-                                <input type="hidden" name="id_penjualan" value="{{ $session }}">
-                                <input type="hidden" name="total_harga" id="total">
-                                <input type="hidden" name="total_item" id="total_item">
+                                <input type="text" name="total_harga" id="total">
+                                <input type="text" name="berat" id="total_item">
                             </div>
                             <div class="col-lg-8">
-
                             </div>
                         </form>
                     </div>
@@ -129,14 +121,14 @@
 @push('script')
 <script>
     let table, table2;
-    {{--  $(function () {
+    $(function () {
         $('body').addClass('sidebar-collapse');
 
         table = $('.table-penjualan').DataTable({
             processing: true,
             autoWidth: false,
             ajax: {
-                url: '{{ route('transaksi.data', $session) }}',
+                url: '{{ route('pembelianDetail.data', $session) }}',
             },
             columns: [
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
@@ -144,6 +136,7 @@
                 {data: 'nama_produk'},
                 {data: 'harga'},
                 {data: 'jumlah'},
+                {data: 'sts'},
                 {data: 'subtotal'},
                 {data: 'aksi', searchable: false, sortable: false},
             ],
@@ -170,15 +163,38 @@
                 return;
             }
 
-            $.post(`{{ url('/transaksi') }}/${id}`, {
+            $.post(`{{ url('/pembelianDetail/update') }}/${id}`, {
                     '_token': $('[name=csrf-token]').attr('content'),
-                    '_method': 'put',
+                    '_method': 'post',
                     'jumlah': jumlah,
-                    'produk': produk
+                    'produk': produk,
                 })
                 .done(response => {
                     $(this).on('mouseout', function () {
-                        table.ajax.reload(() => loadForm($('#diskon').val()));
+                        table.ajax.reload(() => loadForm());
+                    });
+                })
+                .fail(errors => {
+                    alert('Tidak dapat menyimpan data quantitiy');
+                    return;
+                });
+        });
+
+        $(document).on('input', '.status', function () {
+            let id = $(this).data('id');
+            let produk = $(this).data('produk');
+            let sts =$(this).val();
+            console.log(sts);
+
+            $.post(`{{ url('/pembelianDetail/update') }}/${id}`, {
+                    '_token': $('[name=csrf-token]').attr('content'),
+                    '_method': 'post',
+                    'sts': sts,
+                    'produk': produk,
+                })
+                .done(response => {
+                    $(this).on('mouseout', function () {
+                        table.ajax.reload(() => loadForm());
                     });
                 })
                 .fail(errors => {
@@ -190,22 +206,21 @@
         $('.btn-simpan').on('click', function () {
             $('.form-penjualan').submit();
         });
-    });  --}}
+    });
 
     function tampilProduk() {
         $('#modal-produk').modal('show');
     }
 
-    function pilihProduk(id, kode) {
-        $('#id_produk').val(id_produk);
+    function pilihProduk(kode) {
         $('#kd_produk').val(kode);
         $('#modal-produk').modal('hide');
-        hideProduk();
         tambahProduk();
     }
 
-    {{--  function tambahProduk() {
-        $.post('{{ route('transaksi.store') }}', $('.form-produk').serialize())
+    function tambahProduk() {
+        console.log($('.form-produk').serialize())
+        $.post('{{ route('pembelianDetail.store') }}', $('.form-produk').serialize())
             .done(response => {
                 $('#kd_produk').focus();
                 table.ajax.reload(() => loadForm());
@@ -215,7 +230,7 @@
                 alert(xhr.responseText)
                 return;
             });
-    }  --}}
+    }
 
     function deleteData(url) {
         if (confirm('Yakin ingin menghapus data terpilih?')) {
@@ -224,7 +239,7 @@
                     '_method': 'delete'
                 })
                 .done((response) => {
-                    table.ajax.reload(() => loadForm($('#diskon').val()));
+                    table.ajax.reload(() => loadForm());
                 })
                 .fail((errors) => {
                     alert('Tidak dapat menghapus data');
@@ -236,11 +251,9 @@
     function loadForm() {
         $('#total').val($('.total').text());
         $('#total_item').val($('.total_item').text());
-        $.get(`{{ url('/transaksi/loadform') }}/${$('.total').text()}`)
+        $.get(`{{ url('/pembelianDetail/loadform') }}/${$('.total').text()}`)
             .done(response => {
                 $('#totalrp').val('Rp. '+ response.totalrp);
-                $('#sts_flow').val('1');
-                $('#batch_user').val(response.batch_user);
             })
             .fail(function(xhr, status, error) {
                 alert(xhr.responseText)

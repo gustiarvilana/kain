@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\PembelianDetail;
+use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use SebastianBergmann\Environment\Console;
 
 class PembelianDetailController extends Controller
 {
@@ -13,6 +16,7 @@ class PembelianDetailController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function data(Request $request, $id)
     {
         $filter = $request->input('name');
@@ -23,30 +27,36 @@ class PembelianDetailController extends Controller
                 ->orWhere('nosp', $filter);
         }
 
-        $detail = PenjualanDetail::with('Produk')
-            ->where('id_penjualan_detail', $id)
+        $detail = DB::table('tbl_pembelian_detail as a')->leftJoin('tbl_produk as b', 'a.kd_produk', 'b.kd_produk')
+            ->where('kd_pembelian', $id)
             ->get();
+        // dd($detail);
 
         $data = array();
+
         $total = 0;
         $total_item = 0;
 
 
         foreach ($detail as $item) {
             $row = array();
-            $row['kode_produk'] = '<span class="label label-success">' . $item->produk['kd_produk'] . '</span';
-            $row['nama_produk'] = $item->produk['nama_produk'];
-            $row['harga']  = 'Rp. ' . format_uang($item->harga_produk);
-            $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" data-id="' . $item->id_penjualan_detail . '" data-produk="' . $item->id_produk . '" value="' . $item->jml_barang . '">';
-            $row['diskon']      = $item->diskon . '%';
+            $row['kode_produk'] = '<span class="label label-success">' . $item->kd_produk . '</span';
+            $row['nama_produk'] = $item->nama_produk;
+            $row['harga']  = 'Rp. ' . format_uang($item->harga_kg);
+            $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" data-id="' . $item->id_pembelian_detail . '" data-produk="' . $item->kd_produk . '" value="' . $item->berat . '">';
             $row['subtotal']    = 'Rp. ' . format_uang($item->total_harga);
+            $row['sts']    = '<select name="sts" id="sts" class="form-control status"  data-id="' . $item->id_pembelian_detail . '" data-produk="' . $item->kd_produk . '">
+                                    <option value="0">Pilih Kondisi</option>
+                                    <option value="1" ' . (($item->sts == 1) ? 'selected' : '') . '>Belum Sortir</option>
+                                    <option value="5" ' . (($item->sts == 5) ? 'selected' : '') . '>Siap Giling</option>
+                                </select>';
             $row['aksi']        = '<div class="btn-group">
-                                    <button onclick="deleteData(`' . route('transaksi.destroy', $item->id_produk) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                                    <button onclick="deleteData(`' . route('pembelianDetail.destroy', $item->id_pembelian_detail) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
                                 </div>';
             $data[] = $row;
 
-            $total += $item->harga_produk * $item->jml_barang;
-            $total_item += $item->jml_barang;
+            $total += $item->harga_kg * $item->berat;
+            $total_item += $item->berat;
         }
         $data[] = [
             'kode_produk' => '
@@ -55,42 +65,30 @@ class PembelianDetailController extends Controller
             'nama_produk' => '',
             'harga'  => '',
             'jumlah'      => '',
-            'diskon'      => '',
             'subtotal'    => '',
+            'sts'    => '',
             'aksi'        => '',
         ];
 
         return datatables()
             ->of($data)
             ->addIndexColumn()
-            ->rawColumns(['aksi', 'kode_produk', 'jumlah'])
+            ->rawColumns(['aksi', 'kode_produk', 'jumlah', 'sts'])
             ->make(true);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $periode_open = DB::table('tbl_periode')->where('nik_tm', Auth::user()->nik)->where('tgl_akhir', null)->first();
         $produk = DB::table('tbl_produk')->orderBy('nama_produk')->get();
-        $id_penjualan = session('id_penjualan');
+        $kd_pembelian = session('kd_pembelian');
 
         // Cek apakah ada transaksi yang sedang berjalan
-        if (session('id_penjualan')) {
-            $marketing = DB::table('tbl_group_marketing')->where('nik_tm', Auth::user()->nik)->orderBy('nama_sales', 'ASC')->get();
-            $penjualan = DB::table('tbl_penjualan_master')->where('id_penjualan', session('id_penjualan'));
-            $provinsi = DB::table('tbl_place_provinsi')
-                ->where('prov_id', '12')
-                ->orwhere('prov_id', '13')
-                ->orderBy('prov_name', 'ASC')
-                ->get();
-
-            // cek periode sudah mulai
-            if ($periode_open == null) {
-                return redirect()->route('penjualan_master.index')->with('error', 'Mohon Set Periode Mulai!');
-            }
-
-            return view('penjualan_detail.index', compact('produk', 'id_penjualan', 'provinsi', 'marketing'));
+        if (session('kd_pembelian')) {
+            $session = session('kd_pembelian');
+            $produk = Produk::all();
+            return view('pembelian_detail.index', compact('session', 'produk'));
         } else {
-            return redirect()->route('dashboard');
+            return redirect()->route('pembelian.index');
         }
     }
 
@@ -101,18 +99,7 @@ class PembelianDetailController extends Controller
      */
     public function create()
     {
-        $penjualan = new Penjualan();
-        $penjualan->id_member = null;
-        $penjualan->total_item = 0;
-        $penjualan->total_harga = 0;
-        $penjualan->diskon = 0;
-        $penjualan->bayar = 0;
-        $penjualan->diterima = 0;
-        $penjualan->id_user = auth()->id();
-        $penjualan->save();
-
-        session(['id_penjualan' => $penjualan->id_penjualan]);
-        return redirect()->route('transaksi.index');
+        return redirect()->route('pembelianDetail.index');
     }
 
     /**
@@ -123,20 +110,21 @@ class PembelianDetailController extends Controller
      */
     public function store(Request $request)
     {
-        $produk = DB::table('tbl_produk')->where('id_produk', $request->id_produk)->first();
+
+        $produk = DB::table('tbl_produk')->where('kd_produk', $request->kd_produk)->first();
         if (!$produk) {
             return response()->json('Data gagal disimpan', 400);
+        } else {
+            DB::table('tbl_pembelian_detail')->insert([
+                'kd_pembelian'  =>  $request->input('kd_pembelian'),
+                'kd_produk'     =>  $request->input('kd_produk'),
+                'warna'         =>  $produk->warna,
+                'harga_satuan'  =>  $produk->harga_kg,
+                'berat'         =>  '0',
+                'sts'           =>  '0',
+                'total_harga'   =>  '0',
+            ]);
         }
-
-        DB::table('tbl_pembelian_detail')->where('kd_pembelian', $request->input('kd_pembelian'))->update([
-            'kd_pembelian'  =>  $request->input('kd_pembelian'),
-            'kd_produk'     =>  $request->input('kd_produk'),
-            'warna'         =>  $request->input('warna'),
-            'harga_satuan'  =>  $request->input('harga_satuan'),
-            'berat'         =>  $request->input('berat'),
-            'sts'           =>  $request->input('sts'),
-            'total_harga'   =>  $request->input('total_harga'),
-        ]);
 
         return response()->json('Data berhasil disimpan', 200);
     }
@@ -183,12 +171,12 @@ class PembelianDetailController extends Controller
     public function notaKecil()
     {
         $setting = Setting::first();
-        $penjualan = Penjualan::find(session('id_penjualan'));
+        $penjualan = Penjualan::find(session('kd_pembelian'));
         if (!$penjualan) {
             abort(404);
         }
         $detail = PenjualanDetail::with('produk')
-            ->where('id_penjualan', session('id_penjualan'))
+            ->where('kd_pembelian', session('kd_pembelian'))
             ->get();
 
         return view('penjualan.nota_kecil', compact('setting', 'penjualan', 'detail'));
@@ -197,12 +185,12 @@ class PembelianDetailController extends Controller
     public function notaBesar()
     {
         $setting = Setting::first();
-        $penjualan = Penjualan::find(session('id_penjualan'));
+        $penjualan = Penjualan::find(session('kd_pembelian'));
         if (!$penjualan) {
             abort(404);
         }
         $detail = PenjualanDetail::with('produk')
-            ->where('id_penjualan', session('id_penjualan'))
+            ->where('kd_pembelian', session('kd_pembelian'))
             ->get();
 
         $pdf = PDF::loadView('penjualan.nota_besar', compact('setting', 'penjualan', 'detail'));
@@ -233,16 +221,25 @@ class PembelianDetailController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $harga = PenjualanDetail::where('id_penjualan_detail', $id)->where('id_produk', $request->produk)->first();
-        $total_harga = $harga->harga_produk * $request->jumlah;
+        $harga = DB::table('tbl_pembelian_detail')->where('id_pembelian_detail', $id)->where('kd_produk', $request->produk)->first();
+        $total_harga = $harga->harga_satuan * $request->jumlah;
 
-        DB::table('tbl_penjualan_detail')
-            ->where('id_produk', $request->produk)
-            ->where('id_penjualan_detail', $id)
-            ->update([
-                'jml_barang' => $request->jumlah,
-                'total_harga' => $total_harga
-            ]);
+        if (!$request->jumlah) {
+            DB::table('tbl_pembelian_detail')
+                ->where('kd_produk', $request->produk)
+                ->where('id_pembelian_detail', $id)
+                ->update([
+                    'sts' => $request->sts,
+                ]);
+        } elseif (!$request->sts) {
+            DB::table('tbl_pembelian_detail')
+                ->where('kd_produk', $request->produk)
+                ->where('id_pembelian_detail', $id)
+                ->update([
+                    'berat' => $request->jumlah,
+                    'total_harga' => $total_harga,
+                ]);
+        }
     }
 
     /**
@@ -253,8 +250,8 @@ class PembelianDetailController extends Controller
      */
     public function destroy($id)
     {
-        $id_penjualan = session('id_penjualan');
-        $detail = PenjualanDetail::where('id_penjualan_detail', $id_penjualan)->where('id_produk', $id);
+        $kd_pembelian = session('kd_pembelian');
+        $detail = PembelianDetail::where('kd_pembelian', $kd_pembelian)->where('id_pembelian_detail', $id);
         $detail->delete();
 
         return response(null, 204);
@@ -288,11 +285,8 @@ class PembelianDetailController extends Controller
 
     public function loadForm($total = 0)
     {
-        $batch_user = Auth::user()->nik;
-
         $data    = [
             'totalrp' => format_uang($total),
-            'batch_user' => $batch_user,
         ];
 
         return response()->json($data);

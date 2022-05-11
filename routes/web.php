@@ -45,8 +45,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // route transaksi
 Route::get('/pembelian/data', [PembelianController::class, 'data'])->name('pembelian.data');
 Route::resource('pembelian', PembelianController::class);
-Route::get('/pembelianDetail/data', [PembelianDetailController::class, 'data'])->name('pembelianDetail.data');
-Route::resource('pembelianDetail', PembelianDetailController::class);
+Route::get('/pembelianDetail/{id}/data', [PembelianDetailController::class, 'data'])->name('pembelianDetail.data');
+Route::resource('pembelianDetail', PembelianDetailController::class)->except('update');
+Route::post('/pembelianDetail/update/{id}', [PembelianDetailController::class, 'update'])->name('pembelianDetail.update');
+Route::get('/pembelianDetail/loadform/{total}', [PembelianDetailController::class, 'loadform'])->name('pembelianDetail.loadform');
 
 Route::get('/sortir/data', [SortirController::class, 'data'])->name('sortir.data');
 Route::resource('sortir', SortirController::class);
