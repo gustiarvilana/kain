@@ -33,6 +33,11 @@
         display: none;
     }
 
+    .text-total{
+        font-size: 30px;
+        font-weight: bold;
+    }
+
     @media(max-width: 768px) {
         .tampil-bayar {
             font-size: 3em;
@@ -91,17 +96,34 @@
 
                 <div class="row">
                     <div class="col-lg-12">
-                        <form action="#" class="form-penjualan form-horizontal" method="post">
+                        <form action="{{ route('pembelian.store') }}" class="form-penjualan form-horizontal" method="post">
                             @csrf
+                             <div class="form-group row">
+                                <label for="tgl_trs" class="col-lg-1 control-label">Tanggal Trs</label>
+                                <div class="col-lg-2">
+                                    <input type="text" name="tgl_trs" id="tgl_trs" value="{{ date('Ymd') }}" class="form-control" readonly>
+                                </div>
+                            </div>
+                             <div class="form-group row">
+                                <label for="kd_supplier" class="col-lg-1 control-label">Kd Supplier</label>
+                                <div class="col-lg-2">
+                                    <select name="kd_supplier" id="kd_supplier" class="form-control" required>
+                                        <option value="">Piih Supplier</option>
+                                        @foreach ($supplier as $item)
+                                            <option value="{{ $item->kd_supplier }}">{{ $item->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                              <div class="form-group row">
                                 <label for="totalrp" class="col-lg-1 control-label">Total</label>
                                 <div class="col-lg-8">
-                                    <input type="text" id="totalrp" class="form-control" readonly>
+                                    <input type="text" id="totalrp" class="form-control text-total" readonly>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <input type="text" name="total_harga" id="total">
-                                <input type="text" name="berat" id="total_item">
+                                <input type="text" name="jumlah" id="total_item">
                             </div>
                             <div class="col-lg-8">
                             </div>
@@ -251,6 +273,7 @@
     function loadForm() {
         $('#total').val($('.total').text());
         $('#total_item').val($('.total_item').text());
+        $('#total_item').val();
         $.get(`{{ url('/pembelianDetail/loadform') }}/${$('.total').text()}`)
             .done(response => {
                 $('#totalrp').val('Rp. '+ response.totalrp);

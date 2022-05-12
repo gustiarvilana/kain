@@ -76,9 +76,9 @@ function kode($kd_depan, $id)
         $addNol = "0000";
     } elseif (strlen($kode) == 2) {
         $addNol = "000";
-    } elseif (strlen($kode == 3)) {
+    } elseif (strlen($kode) == 3) {
         $addNol = "00";
-    } elseif (strlen($kode == 4)) {
+    } elseif (strlen($kode) == 4) {
         $addNol = "0";
     }
 

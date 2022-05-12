@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\PembelianDetail;
 use App\Models\Produk;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use SebastianBergmann\Environment\Console;
@@ -27,7 +28,7 @@ class PembelianDetailController extends Controller
                 ->orWhere('nosp', $filter);
         }
 
-        $detail = DB::table('tbl_pembelian_detail as a')->leftJoin('tbl_produk as b', 'a.kd_produk', 'b.kd_produk')
+        $detail = DB::table('tbl_pembelian_detail as a')->leftJoin('tbl_master as b', 'a.kd_produk', 'b.kd_produk')
             ->where('kd_pembelian', $id)
             ->get();
         // dd($detail);
@@ -79,14 +80,13 @@ class PembelianDetailController extends Controller
 
     public function index(Request $request)
     {
-        $produk = DB::table('tbl_produk')->orderBy('nama_produk')->get();
-        $kd_pembelian = session('kd_pembelian');
+        $produk = DB::table('tbl_master')->orderBy('nama_produk')->get();
+        $session = session('kd_pembelian');
+        $supplier = Supplier::all();
 
         // Cek apakah ada transaksi yang sedang berjalan
         if (session('kd_pembelian')) {
-            $session = session('kd_pembelian');
-            $produk = Produk::all();
-            return view('pembelian_detail.index', compact('session', 'produk'));
+            return view('pembelian_detail.index', compact('session', 'produk', 'supplier'));
         } else {
             return redirect()->route('pembelian.index');
         }
@@ -110,8 +110,7 @@ class PembelianDetailController extends Controller
      */
     public function store(Request $request)
     {
-
-        $produk = DB::table('tbl_produk')->where('kd_produk', $request->kd_produk)->first();
+        $produk = DB::table('tbl_master')->where('kd_produk', $request->kd_produk)->first();
         if (!$produk) {
             return response()->json('Data gagal disimpan', 400);
         } else {
@@ -224,21 +223,20 @@ class PembelianDetailController extends Controller
         $harga = DB::table('tbl_pembelian_detail')->where('id_pembelian_detail', $id)->where('kd_produk', $request->produk)->first();
         $total_harga = $harga->harga_satuan * $request->jumlah;
 
+        $pembelian_detail = DB::table('tbl_pembelian_detail')
+            ->where('kd_produk', $request->produk)
+            ->where('id_pembelian_detail', $id);
+
         if (!$request->jumlah) {
-            DB::table('tbl_pembelian_detail')
-                ->where('kd_produk', $request->produk)
-                ->where('id_pembelian_detail', $id)
-                ->update([
-                    'sts' => $request->sts,
-                ]);
+            $pembelian_detail->update([
+                'sts' => $request->sts,
+            ]);
         } elseif (!$request->sts) {
-            DB::table('tbl_pembelian_detail')
-                ->where('kd_produk', $request->produk)
-                ->where('id_pembelian_detail', $id)
-                ->update([
-                    'berat' => $request->jumlah,
-                    'total_harga' => $total_harga,
-                ]);
+            $pembelian_detail->update([
+                'berat' => $request->jumlah,
+                'total_harga' => $total_harga,
+                'sts' =>  $pembelian_detail->first()->sts,
+            ]);
         }
     }
 
