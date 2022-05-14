@@ -172,10 +172,27 @@ class PembelianController extends Controller
      */
     public function destroy($id)
     {
-        $pembelian = DB::table('tbl_pembelian')->where('kd_pembelian', $id);
+
         $pembelianDt = DB::table('tbl_pembelian_detail')->where('kd_pembelian', $id);
-        $pembelian->delete();
+
+        foreach ($pembelianDt->get() as $detail) {
+            $master = Master::where('kd_produk', $detail->kd_produk)->first();
+            // dd($master->stok_global);
+            if ($detail->sts == 5) {
+                $master->update([
+                    'stok_global' => $master->stok_global - $detail->berat,
+                    'stok_sortir' => $master->stok_sortir - $detail->berat
+                ]);
+            } else {
+                $master->update([
+                    'stok_global' => $master->stok_global - $detail->berat
+                ]);
+            }
+        }
         $pembelianDt->delete();
+
+        $pembelian = DB::table('tbl_pembelian')->where('kd_pembelian', $id);
+        $pembelian->delete();
 
         return response(null, 204);
     }
